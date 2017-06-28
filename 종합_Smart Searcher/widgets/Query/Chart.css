@@ -1,0 +1,158 @@
+body {
+	background: rgb(204, 204, 204);
+}
+
+page {
+	background: white;
+	display: block;
+	margin: 0 auto;
+	margin-bottom: 0.5cm;
+	box-shadow: 0 0 0.5cm rgba(0, 0, 0, 0.5);
+}
+
+page[size="A4"] {
+	width: 210mm;
+	height: 300.8mm;
+}
+
+page[size="A4"][layout="portrait"] {
+	width: 297mm;
+	height: 210mm;
+}
+
+page[size="A3"] {
+	width: 29.7cm;
+	height: 42cm;
+}
+
+page[size="A3"][layout="portrait"] {
+	width: 42cm;
+	height: 29.7cm;
+}
+
+page[size="A5"] {
+	width: 14.8cm;
+	height: 21cm;
+}
+
+page[size="A5"][layout="portrait"] {
+	width: 21cm;
+	height: 14.8cm;
+}
+
+@media print {
+	body, page {
+		margin: 0;
+    width: 210mm;
+    height: 297mm;
+		box-shadow: 0;
+	}
+}
+.partTwoSpacing{
+  height: 10pt;
+}
+td.partOneSearchInfo{
+  width: 30%;
+  font-size: 9pt;
+}
+partOneSearchInfo2{
+  font-size: 9pt;
+}
+.partOneSearchInfoValue{
+  font-size: 9pt;
+}
+
+td.part3Value {
+	font-size: 7pt;
+  font-weight: lighter;
+}
+.part3Grid{
+	height: 25%;
+	max-height: 25%;
+	width : 28%;
+	max-width: 28%;
+	vertical-align: text-top;
+	text-overflow: ellipsis;
+}
+
+.part3Table{
+  font-family: Nanum Square;
+}
+
+.stacked-bar-graph {
+	width: 100%;
+	height: 40px;
+	background: #fff;
+	color: #414042;
+  margin: 0;
+  padding: 0;
+}
+.averageValue{
+  font-size: 24pt;
+  font-weight: bold;
+}
+td.partTwoAttrCell{
+  width: 40%;
+}
+.areaLegend{
+  font-size: 8pt;
+}
+.priceLegend{
+  font-size: 8pt;
+}
+.FARLegend{
+font-size: 8pt;
+}
+.yearLegend{
+font-size: 8pt;
+}
+.householdLegend{
+font-size: 8pt;
+}
+div.partTwoAvgAttr{
+  font-size: 14pt;
+  font-weight: bold;
+}
+div.partTwoAvgValue{
+  font-size: 14pt;
+}
+.bar-1 {
+	background: #8ac75b;
+}
+
+.bar-2 {
+	background: #c5ecad;
+}
+
+.bar-3 {
+	background: #eeba19;
+}
+
+.bar-4 {
+	background: #ffda82;
+}
+
+span {
+	display: inline-block;
+	height: 100%;
+	box-sizing: border-box;
+	float: left;
+	color: #fff;
+	font-weight: bold;
+	font-family: arial, sans-serif;
+	padding: 0px;
+  vertical-align: middle;
+}
+.input-color {
+    position: relative;
+}
+.input-color .color-box {
+    width: 10px;
+    height: 10px;
+    display: inline-block;
+    background-color: #fff;
+    left: 5px;
+    top: 5px;
+    margin-left: 5px;
+
+}

@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Chart</title>
+  <link rel="stylesheet" type="text/css" href="./Chart.css" />
+  <link rel="stylesheet" href="//cdn.rawgit.com/hiun/NanumSquare/master/nanumsquare.css">
+  <script type="text/javascript">
+    function PartOneInfoSpliter(info) {
+      var splitedInfo = info.split("/");
+      return splitedInfo;
+    }
+
+    //----------------------Part 1: Search Attributes-------------------------------//
+      function CreatePartOneSearchInfo(part1SearchAttr) {
+        var templateArr = [];
+        for (var i = 0; i < part1SearchAttr.length; i++) {
+          if (part1SearchAttr[i].split("/")[0]=="area"){
+            var partOneTemplate = '<tr>' +
+              '<td class="partOneSearchInfo">면적' +
+              ': <a class="partOneSearchInfoValue">'+parseFloat(part1SearchAttr[i].split("/")[1]).toLocaleString()+
+              '</a> m²이하'
+              '</td>' +
+              '</tr>';
+              templateArr.push(partOneTemplate);
+          }
+          if (part1SearchAttr[i].split("/")[0]=="deterioration"){
+            var partOneTemplate = '<tr>' +
+              '<td class="partOneSearchInfo">누후불량 건축물 비율<td class="partOneSearchInfo">' +
+              ': <a class="partOneSearchInfoValue">'+parseFloat(part1SearchAttr[i].split("/")[1]).toLocaleString()+
+              '</a> % 이상'
+              '</td></td>' +
+              '</tr>';
+              templateArr.push(partOneTemplate);
+          }
+          if (part1SearchAttr[i].split("/")[0]=="priceFrom"){
+             var partOneTemplate = '<tr>' +
+              '<td class="partOneSearchInfo">공시지가 범위</td><td class="partOneSearchInfo">' +
+              ': <a class="partOneSearchInfoValue">'+parseFloat(part1SearchAttr[i].split("/")[1]).toLocaleString()+
+              '</a> 에서 '+
+              '<a class = "partOneSearchInfoValue">' +parseFloat(part1SearchAttr[i+1].split("/")[1]).toLocaleString()+
+              '</a> 원/m² 사이</td></tr>';
+              templateArr.push(partOneTemplate);
+          }
+          if (part1SearchAttr[i].split("/")[0]=="FARFrom"){
+            var partOneTemplate = '<tr>' +
+              '<td class="partOneSearchInfo">현재 용적률</td><td class="partOneSearchInfo">' +
+              ': <a class="partOneSearchInfoValue">'+part1SearchAttr[i].split("/")[1]+
+              '</a> 에서 '+
+              '<a class = "partOneSearchInfoValue">' +part1SearchAttr[i+1].split("/")[1]+
+              '</a> % 사이</td></tr>';
+              templateArr.push(partOneTemplate);
+          }
+          if (part1SearchAttr[i].split("/")[0]=="govOwned"){
+            var partOneTemplate = '<tr>' +
+              '<td class="partOneSearchInfo">국유지 비율<td class="partOneSearchInfo">' +
+              '<a class="partOneSearchInfoValue">: '+part1SearchAttr[i].split("/")[1]+
+              '</a> % 이상'
+              '</td></td>' +
+              '</tr>';
+              templateArr.push(partOneTemplate);
+          }
+          if (part1SearchAttr[i].split("/")[0]=="included"){
+            var partOneTemplate = '<tr>' +
+              '<td class="partOneSearchInfo">용도지역(포함)<td class="partOneSearchInfo">' +
+              '<a class="partOneSearchInfoValue">: '+part1SearchAttr[i].split("/")[1]+
+              '</a>'
+              '</td></td>' +
+              '</tr>';
+              templateArr.push(partOneTemplate);
+          }
+          if (part1SearchAttr[i].split("/")[0]=="excluded"){
+            var partOneTemplate = '<tr>' +
+              '<td class="partOneSearchInfo">용도지역(제외)<td class="partOneSearchInfo">' +
+              '<a class="partOneSearchInfoValue">: '+part1SearchAttr[i].split("/")[1].replace("|",",")+
+              '</a>'
+              '</td></td>' +
+              '</tr>';
+              templateArr.push(partOneTemplate);
+          }
+        }
+        return templateArr;
+      }
+
+    window.onload = function () {
+      var partOneSearchInfoValue = document.getElementsByClassName('partOneSearchInfoValue');
+      var part1SearchAttr = sessionStorage.getItem('part1SearchAttrs').split(",");
+      console.log(part1SearchAttr);
+      var startingPoint =document.getElementsByTagName('tr')[5];
+      var templateArr = CreatePartOneSearchInfo(part1SearchAttr);
+      console.log(templateArr);
+      for(var i = templateArr.length-1;i>=0;i--){
+        startingPoint.insertAdjacentHTML('afterend',templateArr[i]);
+      }
+
+
+      //-----------------------Part 2: chart------------------------------------//
+      //Area
+      var avgArea = parseFloat(sessionStorage.getItem('avgArea'));
+      var areaOne = parseFloat(sessionStorage.getItem('areaOne'));
+      var areaTwo = parseFloat(sessionStorage.getItem('areaTwo'));
+      var areaThree = parseFloat(sessionStorage.getItem('areaThree'));
+      var areaFour = parseFloat(sessionStorage.getItem('areaFour'));
+
+      var totalArea = areaOne + areaTwo + areaThree + areaFour;
+      var areaOneRatio = Math.round(areaOne / totalArea * 100);
+      var areaTwoRatio = Math.round(areaTwo / totalArea * 100);
+      var areaThreeRatio = Math.round(areaThree / totalArea * 100);
+      var areaFourRatio = Math.round(areaFour / totalArea * 100);
+
+      var totalAreaPercentage = areaOneRatio + areaTwoRatio + areaThreeRatio + areaFourRatio;
+      var totalAreaRatio = [];
+      totalAreaRatio.push(areaOneRatio);
+      totalAreaRatio.push(areaTwoRatio);
+      totalAreaRatio.push(areaThreeRatio);
+      totalAreaRatio.push(areaFourRatio);
+      totalAreaRatio.sort(function (a, b) { return a - b; });
+      if (totalAreaPercentage != 100) {
+        if (totalAreaPercentage > 100) {
+          if (totalAreaRatio[totalAreaRatio.length - 1] == areaOneRatio) {
+            areaOneRatio = areaOneRatio - (totalAreaPercentage - 100);
+          }
+          if (totalAreaRatio[totalAreaRatio.length - 1] == areaTwoRatio) {
+            areaTwoRatio = areaTwoRatio - (totalAreaPercentage - 100);
+          }
+          if (totalAreaRatio[totalAreaRatio.length - 1] == areaThreeRatio) {
+            areaThreeRatio = areaThreeRatio - (totalAreaPercentage - 100);
+          }
+          if (totalAreaRatio[totalAreaRatio.length - 1] == areaFourRatio) {
+            areaFourRatio = areaFourRatio - (totalAreaPercentage - 100);
+          }
+        }
+      }
+      //--------------insert into html------------------//
+      document.getElementById("averageArea").innerHTML = avgArea.toLocaleString();
+      document.getElementsByTagName("span")[0].style.width = String(areaOneRatio) + "%";
+      document.getElementsByTagName("span")[1].style.width = String(areaTwoRatio) + "%";
+      document.getElementsByTagName("span")[2].style.width = String(areaThreeRatio) + "%";
+      document.getElementsByTagName("span")[3].style.width = String(areaFourRatio) + "%";
+
+      document.getElementsByClassName('areaLegend')[0].innerHTML = "3000m² 이하" + "(" + String(areaOneRatio) + "%" + ")";
+      document.getElementsByClassName('areaLegend')[1].innerHTML = "3000 - 6000m²" + "(" + String(areaTwoRatio) + "%" + ")";
+      document.getElementsByClassName('areaLegend')[2].innerHTML = "6000 - 9000m²" + "(" + String(areaThreeRatio) + "%" + ")";
+      document.getElementsByClassName('areaLegend')[3].innerHTML = "9000m² 이상" + "(" + String(areaFourRatio) + "%" + ")";
+
+      //household
+      var avgNumOfHousehold = parseFloat(sessionStorage.getItem('avgNumOfHousehold'));
+      var householdOne = parseFloat(sessionStorage.getItem('householdOne'));
+      var householdTwo = parseFloat(sessionStorage.getItem('householdTwo'));
+      var householdThree = parseFloat(sessionStorage.getItem('householdThree'));
+      var householdFour = parseFloat(sessionStorage.getItem('householdFour'));
+
+      var totalHousehold = householdOne + householdTwo + householdThree + householdFour;
+      var householdOneRatio = Math.round(householdOne / totalHousehold * 100);
+      var householdTwoRatio = Math.round(householdTwo / totalHousehold * 100);
+      var householdThreeRatio = Math.round(householdThree / totalHousehold * 100);
+      var householdFourRatio = Math.round(householdFour / totalHousehold * 100);
+
+      var totalHousePercentage = householdOneRatio + householdTwoRatio + householdThreeRatio + householdFourRatio;
+      var totalHouseRatio = [];
+      totalHouseRatio.push(householdOneRatio);
+      totalHouseRatio.push(householdTwoRatio);
+      totalHouseRatio.push(householdThreeRatio);
+      totalHouseRatio.push(householdFourRatio);
+      totalHouseRatio.sort(function (a, b) { return a - b; });
+      if (totalHousePercentage != 100) {
+        if (totalHousePercentage > 100) {
+          if (totalHouseRatio[totalHouseRatio.length - 1] == householdOneRatio) {
+            householdOneRatio = householdOneRatio - (totalHousePercentage - 100);
+          }
+          if (totalHouseRatio[totalHouseRatio.length - 1] == householdTwoRatio) {
+            householdTwoRatio = householdTwoRatio - (totalHousePercentage - 100);
+          }
+          if (totalHouseRatio[totalHouseRatio.length - 1] == householdThreeRatio) {
+            householdThreeRatio = householdThreeRatio - (totalHousePercentage - 100);
+          }
+          if (totalHouseRatio[totalHouseRatio.length - 1] == householdFourRatio) {
+            householdFourRatio = householdFourRatio - (totalHousePercentage - 100);
+          }
+        }
+      }
+    
+    //----------Insert into html---------------------------//
+    document.getElementById("averageHouseholdNum").innerHTML = avgNumOfHousehold;
+
+    document.getElementsByTagName("span")[4].style.width = String(householdOneRatio) + "%";
+    document.getElementsByTagName("span")[5].style.width = String(householdTwoRatio) + "%";
+    document.getElementsByTagName("span")[6].style.width = String(householdThreeRatio) + "%";
+    document.getElementsByTagName("span")[7].style.width = String(householdFourRatio) + "%";
+
+    document.getElementsByClassName('householdLegend')[0].innerHTML = "10호 이하" + "(" + String(householdOneRatio) + "%" + ")";
+    document.getElementsByClassName('householdLegend')[1].innerHTML = "10 - 30호" + "(" + String(householdTwoRatio) + "%" + ")";
+    document.getElementsByClassName('householdLegend')[2].innerHTML = "30 - 60호" + "(" + String(householdThreeRatio) + "%" + ")";
+    document.getElementsByClassName('householdLegend')[3].innerHTML = "60호 이상" + "(" + String(householdFourRatio) + "%" + ")";
+
+    //deterioration
+    var avgOfYearOfDeterioration = parseFloat(sessionStorage.getItem('avgOfYearOfDeterioration'));
+    var deteriorationOne = parseFloat(sessionStorage.getItem('deteriorationOne'));
+    var deteriorationTwo = parseFloat(sessionStorage.getItem('deteriorationTwo'));
+    var deteriorationThree = parseFloat(sessionStorage.getItem('deteriorationThree'));
+    var deteriorationFour = parseFloat(sessionStorage.getItem('deteriorationFour'));
+
+    var totalYear = deteriorationOne + deteriorationTwo + deteriorationThree + deteriorationFour;
+    var yearOneRatio = Math.round(deteriorationOne / totalYear * 100);
+    var yearTwoRatio = Math.round(deteriorationTwo / totalYear * 100);
+    var yearThreeRatio = Math.round(deteriorationThree / totalYear * 100);
+    var yearFourRatio = Math.round(deteriorationFour / totalYear * 100);
+
+    var totalYearPercentage = yearOneRatio + yearTwoRatio + yearThreeRatio + yearFourRatio;
+    var totalYearRatio = [];
+    totalYearRatio.push(yearOneRatio);
+    totalYearRatio.push(yearTwoRatio);
+    totalYearRatio.push(yearThreeRatio);
+    totalYearRatio.push(yearFourRatio);
+    totalYearRatio.sort(function (a, b) { return a - b; });
+    if (totalYearPercentage != 100) {
+      if (totalYearPercentage > 100) {
+        if (totalYearRatio[totalYearRatio.length - 1] == priceOneRatio) {
+          priceOneRatio = priceOneRatio - (totalYearPercentage - 100);
+        }
+        if (totalYearRatio[totalYearRatio.length - 1] == yearTwoRatio) {
+          yearTwoRatio = yearTwoRatio - (totalYearPercentage - 100);
+        }
+        if (totalYearRatio[totalYearRatio.length - 1] == yearThreeRatio) {
+          yearThreeRatio = yearThreeRatio - (totalYearPercentage - 100);
+        }
+        if (totalYearRatio[totalYearRatio.length - 1] == yearFourRatio) {
+          yearFourRatio = priceOnyearFourRatioeRatio - (totalYearPercentage - 100);
+        }
+      }
+    }
+    //-------------Insert into html----------------------//
+    document.getElementById("averageYear").innerHTML = avgOfYearOfDeterioration;
+    document.getElementsByTagName("span")[8].style.width = String(yearOneRatio) + "%";
+    document.getElementsByTagName("span")[9].style.width = String(yearTwoRatio) + "%";
+    document.getElementsByTagName("span")[10].style.width = String(yearThreeRatio) + "%";
+    document.getElementsByTagName("span")[11].style.width = String(yearFourRatio) + "%";
+
+    document.getElementsByClassName('yearLegend')[0].innerHTML = "10년 이하" + "(" + String(yearOneRatio) + "%" + ")";
+    document.getElementsByClassName('yearLegend')[1].innerHTML = "10 - 20년" + "(" + String(yearTwoRatio) + "%" + ")";
+    document.getElementsByClassName('yearLegend')[2].innerHTML = "20 - 30년" + "(" + String(yearThreeRatio) + "%" + ")";
+    document.getElementsByClassName('yearLegend')[3].innerHTML = "30년 이상" + "(" + String(yearFourRatio) + "%" + ")";
+    //price
+    var avgOfficialPrice = parseFloat(sessionStorage.getItem('avgOfficialPrice'));
+    var priceOne = parseFloat(sessionStorage.getItem('priceOne'));
+    var priceTwo = parseFloat(sessionStorage.getItem('priceTwo'));
+    var priceThree = parseFloat(sessionStorage.getItem('priceThree'));
+    var priceFour = parseFloat(sessionStorage.getItem('priceFour'));
+
+    // console.log(priceOne);
+    // console.log(priceTwo);
+    // console.log(priceThree);
+    // console.log(priceFour);
+
+    var priceLegend1 = parseFloat(sessionStorage.getItem('priceLegend1'));
+    var priceLegend2 = parseFloat(sessionStorage.getItem('priceLegend2'));
+    var priceLegend3 = parseFloat(sessionStorage.getItem('priceLegend3'));
+
+    var totalPrice = priceOne + priceTwo + priceThree + priceFour;
+    var priceOneRatio = Math.round(priceOne / totalPrice * 100);
+    var priceTwoRatio = Math.round(priceTwo / totalPrice * 100);
+    var priceThreeRatio = Math.round(priceThree / totalPrice * 100);
+    var priceFourRatio = Math.round(priceFour / totalPrice * 100);
+    if(priceFourRatio==0){
+      priceFourRatio=1;
+    }
+
+    var totalPricePercentage = priceOneRatio + priceTwoRatio + priceThreeRatio + priceFourRatio;
+    var totalPriceRatio = [];
+    totalPriceRatio.push(priceOneRatio);
+    totalPriceRatio.push(priceTwoRatio);
+    totalPriceRatio.push(priceThreeRatio);
+    totalPriceRatio.push(priceFourRatio);
+
+    if (totalPricePercentage != 100) {
+      if (totalPricePercentage > 100) {
+        totalPriceRatio.sort(function (a, b) { return a - b; });
+        if (totalPriceRatio[totalPriceRatio.length - 1] == priceOneRatio) {
+          priceOneRatio = priceOneRatio - (totalPricePercentage - 100);
+        }
+        if (totalPriceRatio[totalPriceRatio.length - 1] == priceTwoRatio) {
+          priceTwoRatio = priceTwoRatio - (totalPricePercentage - 100);
+        }
+        if (totalPriceRatio[totalPriceRatio.length - 1] == priceThreeRatio) {
+          priceThreeRatio = priceThreeRatio - (totalPricePercentage - 100);
+        }
+        if (totalPriceRatio[totalPriceRatio.length - 1] == priceFourRatio) {
+          priceFourRatio = priceFourRatio - (totalPricePercentage - 100);
+        }
+      }
+    }
+    //-------------Insert into html----------------------//
+    document.getElementById("averagePrice").innerHTML = avgOfficialPrice.toLocaleString();
+    document.getElementsByTagName("span")[12].style.width = String(priceOneRatio) + "%";
+    document.getElementsByTagName("span")[13].style.width = String(priceTwoRatio) + "%";
+    document.getElementsByTagName("span")[14].style.width = String(priceThreeRatio) + "%";
+    document.getElementsByTagName("span")[15].style.width = String(priceFourRatio) + "%";
+
+    var testing = sessionStorage.getItem('designationTitle');
+    //console.log(testing);
+    document.getElementsByClassName('priceLegend')[0].innerHTML = String(priceLegend1.toLocaleString()) + "원/m² 이하" + "(" + String(priceOneRatio) + "%" + ")";
+    document.getElementsByClassName('priceLegend')[1].innerHTML = String(priceLegend1.toLocaleString()) + " - " + String(priceLegend2.toLocaleString()) + "원/m²" + "(" + String(priceTwoRatio) + "%" + ")";
+    document.getElementsByClassName('priceLegend')[2].innerHTML = String(priceLegend2.toLocaleString()) + " - " + String(priceLegend3.toLocaleString()) + "원/m²" + "(" + String(priceThreeRatio) + "%" + ")";
+    document.getElementsByClassName('priceLegend')[3].innerHTML = String(priceLegend3.toLocaleString()) + "원/m² 이상" + "(" + String(priceFourRatio) + "%" + ")";
+
+    //FAR
+    var avgFAR = parseFloat(sessionStorage.getItem('avgFAR'));
+    var FAROne = parseFloat(sessionStorage.getItem('FAROne'));
+    var FARTwo = parseFloat(sessionStorage.getItem('FARTwo'));
+    var FARThree = parseFloat(sessionStorage.getItem('FARThree'));
+    var FARFour = parseFloat(sessionStorage.getItem('FARFour'));
+
+    var totalFAR = FAROne + FARTwo + FARThree + FARFour;
+    var FAROneRatio = Math.round(FAROne / totalHousehold * 100);
+    var FARTwoRatio = Math.round(FARTwo / totalHousehold * 100);
+    var FARThreeRatio = Math.round(FARThree / totalHousehold * 100);
+    var FARFourRatio = Math.round(FARFour / totalHousehold * 100);
+
+    var totalFARPercentage = FAROneRatio + FARTwoRatio + FARThreeRatio + FARFourRatio;
+    var totalFARRatio = [];
+    totalFARRatio.push(FAROneRatio);
+    totalFARRatio.push(FARTwoRatio);
+    totalFARRatio.push(FARThreeRatio);
+    totalFARRatio.push(FARFourRatio);
+
+    if (totalFARPercentage != 100) {
+      if (totalFARPercentage > 100) {
+        totalFARRatio.sort(function (a, b) { return a - b; });
+        if (totalFARRatio[totalFARRatio.length - 1] == FAROneRatio) {
+          FAROneRatio = FAROneRatio - (totalFARPercentage - 100);
+        }
+        if (totalFARRatio[totalFARRatio.length - 1] == FARTwoRatio) {
+          FARTwoRatio = FARTwoRatio - (totalFARPercentage - 100);
+        }
+        if (totalFARRatio[totalFARRatio.length - 1] == FARThreeRatio) {
+          FARThreeRatio = FARThreeRatio - (totalFARPercentage - 100);
+        }
+        if (totalFARRatio[totalFARRatio.length - 1] == FARFourRatio) {
+          FARFourRatio = FARFourRatio - (totalFARPercentage - 100);
+        }
+      }
+    }
+    //-------------Insert into html----------------------//
+    document.getElementById("averageFAR").innerHTML = avgFAR;
+    document.getElementsByTagName("span")[16].style.width = String(FAROneRatio) + "%";
+    document.getElementsByTagName("span")[17].style.width = String(FARTwoRatio) + "%";
+    document.getElementsByTagName("span")[18].style.width = String(FARThreeRatio) + "%";
+    document.getElementsByTagName("span")[19].style.width = String(FARFourRatio) + "%";
+
+    document.getElementsByClassName('FARLegend')[0].innerHTML = "100% 이하" + "(" + String(FAROneRatio) + "%" + ")";
+    document.getElementsByClassName('FARLegend')[1].innerHTML = "100 - 150%" + "(" + String(FARTwoRatio) + "%" + ")";
+    document.getElementsByClassName('FARLegend')[2].innerHTML = "150 - 200%" + "(" + String(FARThreeRatio) + "%" + ")";
+    document.getElementsByClassName('FARLegend')[3].innerHTML = "200% 이상" + "(" + String(FARFourRatio) + "%" + ")";
+
+    document.getElementById("totalResultAmount").innerHTML = totalArea;
+
+    //------------------------------------Part 3 -------------------------------------------------------------//
+    var part3Title = sessionStorage.getItem('designationTitle');
+    var part3ParcelArea = sessionStorage.getItem('totalParcelArea');
+    var part3Parcel = sessionStorage.getItem('totalParcel');
+    var part3AvgParcelArea = sessionStorage.getItem('totalAvgParcelArea');
+    var part3GFA = sessionStorage.getItem('totalGFA');
+    var part3FAR = sessionStorage.getItem('totalFAR');
+    var part3AvgAge = sessionStorage.getItem('totalAvgAge');
+    var part3AOD = sessionStorage.getItem('totalAOD');
+    var part3Building = sessionStorage.getItem('totalBuilding');
+    var part3AvgPrice = sessionStorage.getItem('totalAvgPrice');
+    var part3AreaType = sessionStorage.getItem('totalAreaType');
+    var part3Addr = sessionStorage.getItem('totalParcelAddr');
+    //console.log(part3ParcelArea);
+
+    var part3InfoLength = part3Title.split(',').length;
+
+    var part3TotalTemplate = [];
+
+    for (var i = 0; i < part3InfoLength; i++) {
+
+      if (i % 12 == 0) {
+
+        var page = '<page size="A4"><table border="0px" align="center" style=" padding-top: 10%; width:80%; height:92%; font-family: Nanum Square">'
+          + '<tr><td class = "part3Grid"></td><td class = "part3Grid"></td><td class = "part3Grid"></td></tr>'
+          + '<tr><td class = "part3Grid"></td><td class = "part3Grid"></td><td class = "part3Grid"></td></tr>'
+          + '<tr><td class = "part3Grid"></td><td class = "part3Grid"></td><td class = "part3Grid"></td></tr>'
+          + '<tr><td class = "part3Grid"></td><td class = "part3Grid"></td><td class = "part3Grid"></td></tr>'
+          + '</table></page>';
+        var firstPage = document.getElementsByTagName('page')[0];
+        firstPage.insertAdjacentHTML('afterend', page);
+      }
+    }
+    var part3GridArray = document.getElementsByClassName('part3Grid');
+    for (var i = 0; i < part3InfoLength; i++) {
+      var part3Template = '<table style="text-align: left; border-collapse:collapse;">'
+        + '<tr><th style="font-size: 9pt; font-weight:bold;" id = "part3Title" class = "part3Value">' + part3Title.split(",")[i].split("동 ")[0] + '동</th></tr>'
+        + '<tr><th style="font-size: 9pt; font-weight:bold;" id = "part3Title" class = "part3Value">' + part3Title.split(",")[i].split("동 ")[1] + '</th></tr>'
+        + '<tr><td class = "part3Value">총 필지면적 : <a id = "part3ParcelArea">' + parseFloat(part3ParcelArea.split(",")[i]).toLocaleString() + 'm²</a></td></tr>'
+        + '<tr><td class = "part3Value">총 필지수 : <a id = "part3Parcel">' + part3Parcel.split(",")[i] + '</a></td></tr>'
+        + '<tr><td class = "part3Value">평균 필지면적 :  <a id = "part3AvgParcelArea">' + part3AvgParcelArea.split(",")[i] + '</a></td></tr>'
+        + '<tr><td class = "part3Value">총 연면적 : <a id = "part3GFA">' + parseFloat(part3GFA.split(",")[i]).toLocaleString() + 'm²</a></td></tr>'
+        + '<tr><td class = "part3Value">종전 용적률 : <a id = "part3FAR">' + part3FAR.split(",")[i] + '</a></td></tr>'
+        + '<tr><td class = "part3Value">평균 노후년도 : <a id = "part3AvgAge">' + part3AvgAge.split(",")[i] + '</a></td></tr>'
+        + '<tr><td class = "part3Value">노후도 : <a id = "part3AOD">' + part3AOD.split(",")[i] + '</a></td></tr>'
+        + '<tr><td class = "part3Value">건물수 : <a id = "part3Building">' + part3Building.split(",")[i] + '</a></td></tr>'
+        + '<tr><td class = "part3Value">평균 공시지가 : <a id = "part3AvgPrice">' + parseFloat(part3AvgPrice.split(",")[i]).toLocaleString() + '원/m²</a></td></tr>'
+        + '<tr><td class = "part3Value">용도지역지구 : <a id = "part3AreaType">' + part3AreaType.split(",")[i] + '</a></td></tr>'
+        + '<tr><td class = "part3Value">세부주소 : <a id = "part3Addr">' + part3Addr.split(",")[i] + '</a></td></tr></table>';
+
+      part3GridArray[i].innerHTML = part3Template;
+
+    }
+    //insert title
+    var searchTitleSplit = part3Title.split(",")[0].split(" ");
+    var finalTitle = searchTitleSplit[0] + " " + searchTitleSplit[1];
+    document.getElementsByClassName('partOneSearchInfoTitle')[0].innerHTML = finalTitle
+    // for (var i = 0; i < part1SearchAttr.length; i++) {
+    //     if (part1SearchAttr[i].split("/")[0] == "city"&&part1SearchAttr[i].split("/")[1] != "undefined") {
+    //       document.getElementsByClassName('partOneSearchInfoTitle')[0].innerHTML = finalTitle + " " + part1SearchAttr[i].split("/")[1];
+    //       if (part1SearchAttr[i + 1].split("/")[0] == "district"&&part1SearchAttr[i+1].split("/")[1] != "undefined") {
+    //         document.getElementsByClassName('partOneSearchInfoTitle')[0].innerHTML = finalTitle + " " + part1SearchAttr[i].split("/")[1] + " " + part1SearchAttr[i + 1].split("/")[1];
+    //         break; 
+    //      }else{
+    //        break;
+    //      }
+    //     }else{
+    //        document.getElementsByClassName('partOneSearchInfoTitle')[0].innerHTML = finalTitle
+    //        break;
+    //     }
+    //   }
+      // sessionStorage.clear();
+      // window.onbeforeunload = function () {
+      //   var stripA = document.getElementsByTagName('a');
+      //   for (var i = 0; i < stripA.length; i++) {
+      //     stripA[i].innerHTML = "";
+      //   }
+      // }
+}
+
+  </script>
+
+</head>
+
+<body>
+  <page size="A4">
+    <!-- Part1 -->
+    <table style="height: 6%;"></table>
+    <table style="width: 80%; position: relative; border-collapse: collapse; font-family: Nanum Square;" align="center">
+      <tr>
+        <th colspan="2" align="left" style="font-size: 18pt; font-weight: lighter">가로주택정비사업 후보지 분석</th>
+      </tr>
+      <tr>
+        <th colspan="2" align="left" style="font-size: 18pt; font-weight: bold"><a class="partOneSearchInfoTitle"></a></th>
+      </tr>
+      <tr>
+        <th style="height: 2pt; background-color: #8ac75b" colspan="2"></th>
+      </tr>
+      <tr>
+        <th style="height: 5pt;" colspan="2"></th>
+      </tr>
+      <tr>
+        <th colspan="2" align="left" style="font-size: 13pt;">블럭 탐색조건</th>
+      </tr>
+      <tr id = "startingPoint">
+        <th style="height: 15pt;" colspan="2"></th>
+      </tr>
+      <tr>
+        <th style="height: 20pt;" colspan="2"></th>
+      </tr>
+      <tr>
+        <th style="height: 2pt; background-color: #8ac75b" colspan="2"></th>
+      </tr>
+    </table>
+
+    <!-- Part2 -->
+    <table style="width: 80%; position: relative; vertical-align: middle; border-collapse: collapse; font-family: Nanum Square"
+      align="center">
+      <tr>
+        <th style="height: 30pt;" colspan="2"></th>
+      </tr>
+      <tr>
+        <th align="left" style="font-size: 24pt" colspan="2">총 <a id="totalResultAmount"></a>개 대상지를 탐색하였습니다.
+        </th>
+      </tr>
+      <tr>
+        <th style="height: 15pt;" colspan="2"></th>
+      </tr>
+      <!-- 평균면적 -->
+      <tr>
+        <th class="partTwoSpacing" colspan="2"></th>
+      </tr>
+      <tr>
+        <td class="partTwoAttrCell">
+          <div class="partTwoAvgAttr">평균 면적</div>
+          <div class="partTwoAvgValue">
+            <a id="averageArea" class="averageValue"></a> m²
+          </div>
+        </td>
+        <td width="100%">
+          <div class="stacked-bar-graph">
+            <span id="areaChart" class="bar-1"></span>
+            <span id="areaChart" class="bar-2"></span>
+            <span id="areaChart" class="bar-3"></span>
+            <span id="areaChart" class="bar-4"></span>
+          </div>
+          <div class="input-color">
+            <div class="color-box" style="background-color: #8ac75b;"></div>
+            <a style="padding-left: 2px; margin: 0px;" class="areaLegend">3000m²이하</a>
+            <div class="color-box" style="background-color: #c5ecad;"></div>
+            <a style="padding-left: 2px; margin: 0px;" class="areaLegend">3000-6000m²</a>
+            <br/>
+            <div class="color-box" style="background-color: #eeba19;"></div>
+            <a style="padding-left: 2px; margin: 0px;" class="areaLegend">6000-9000m²</a>
+            <div class="color-box" style="background-color: #ffda82;"></div>
+            <a style="padding-left: 2px; margin: 0px;" class="areaLegend">9000m²이상</a>
+          </div>
+          <br/>
+        </td>
+      </tr>
+      <!-- 평균 세대호수 -->
+      <tr>
+        <th class="partTwoSpacing" colspan="2"></th>
+      </tr>
+      <tr>
+        <td class="partTwoAttrCell">
+          <div class="partTwoAvgAttr">평균 세대 호,수</div>
+          <div class="partTwoAvgValue">
+            <a id="averageHouseholdNum" class="averageValue"></a> 세대(호)
+          </div>
+        </td>
+        <td width="100%">
+          <div class="stacked-bar-graph">
+            <span class="bar-1"></span>
+            <span class="bar-2"></span>
+            <span class="bar-3"></span>
+            <span class="bar-4"></span>
+          </div>
+          <div class="input-color">
+            <div class="color-box" style="background-color: #8ac75b;"></div>
+            <a style="padding-left: 2px; margin: 0px;" class="householdLegend">10호 이하</a>
+            <div class="color-box" style="background-color: #c5ecad;"></div>
+            <a style="padding-left: 2px; margin: 0px;" class="householdLegend">10-30호</a>
+            <br/>
+            <div class="color-box" style="background-color: #eeba19;"></div>
+            <a style="padding-left: 2px; margin: 0px;" class="householdLegend">30-60호</a>
+            <div class="color-box" style="background-color: #ffda82;"></div>
+            <a style="padding-left: 2px; margin: 0px;" class="householdLegend">60호 이상</a>
+          </div>
+          <br/>
+        </td>
+      </tr>
+      <!-- 평균 노후도 -->
+      <tr>
+        <th class="partTwoSpacing" colspan="2"></th>
+      </tr>
+      <tr>
+        <td class="partTwoAttrCell">
+          <div class="partTwoAvgAttr">평균 노후도</div>
+          <div class="partTwoAvgValue">
+            <a id="averageYear" class="averageValue"></a> 년
+          </div>
+        </td>
+        <td width="100%">
+          <div class="stacked-bar-graph">
+            <span class="bar-1"></span>
+            <span class="bar-2"></span>
+            <span class="bar-3"></span>
+            <span class="bar-4"></span>
+          </div>
+          <div class="input-color">
+            <div class="color-box" style="background-color: #8ac75b;"></div>
+            <a style="padding-left: 2px; margin: 0px;" class="yearLegend">10년 이하</a>
+            <div class="color-box" style="background-color: #c5ecad;"></div>
+            <a style="padding-left: 2px; margin: 0px;" class="yearLegend">10-20년</a>
+            <br/>
+            <div class="color-box" style="background-color: #eeba19;"></div>
+            <a style="padding-left: 2px; margin: 0px;" class="yearLegend">20-30년</a>
+            <div class="color-box" style="background-color: #ffda82;"></div>
+            <a style="padding-left: 2px; margin: 0px;" class="yearLegend">30년 이상</a>
+          </div>
+          <br/>
+        </td>
+      </tr>
+      <!-- 평균 공시지가 -->
+      <tr>
+        <th class="partTwoSpacing" colspan="2"></th>
+      </tr>
+      <tr>
+        <td class="partTwoAttrCell">
+          <div class="partTwoAvgAttr">평균 공시지가</div>
+          <div class="partTwoAvgValue">
+            <a id="averagePrice" class="averageValue"></a> 원/m²
+          </div>
+        </td>
+        <td width="100%">
+          <div class="stacked-bar-graph">
+            <span class="bar-1"></span>
+            <span class="bar-2"></span>
+            <span class="bar-3"></span>
+            <span class="bar-4"></span>
+          </div>
+          <div class="input-color">
+            <div class="color-box" style="background-color: #8ac75b;"></div>
+            <a style="padding-left: 2px; margin: 0px;" class="priceLegend">hello</a>
+            <div class="color-box" style="background-color: #c5ecad;"></div>
+            <a style="padding-left: 2px; margin: 0px;" class="priceLegend">hello</a>
+            <br/>
+            <div class="color-box" style="background-color: #eeba19;"></div>
+            <a style="padding-left: 2px; margin: 0px;" class="priceLegend">hello</a>
+            <div class="color-box" style="background-color: #ffda82;"></div>
+            <a style="padding-left: 2px; margin: 0px;" class="priceLegend">hello</a>
+          </div>
+          <br/>
+        </td>
+      </tr>
+      <!-- 평균 현재 용적률 -->
+      <tr>
+        <th class="partTwoSpacing" colspan="2"></th>
+      </tr>
+      <tr>
+        <td class="partTwoAttrCell">
+          <div class="partTwoAvgAttr">평균 현재 용적률</div>
+          <div class="partTwoAvgValue">
+            <a id="averageFAR" class="averageValue"></a> %
+          </div>
+        </td>
+        <td width="100%">
+          <div class="stacked-bar-graph">
+            <span class="bar-1"></span>
+            <span class="bar-2"></span>
+            <span class="bar-3"></span>
+            <span class="bar-4"></span>
+          </div>
+          <div class="input-color">
+            <div class="color-box" style="background-color: #8ac75b;"></div>
+            <a style="padding-left: 2px; margin: 0px;" class="FARLegend">100% 이하</a>
+            <div class="color-box" style="background-color: #c5ecad;"></div>
+            <a style="padding-left: 2px; margin: 0px;" class="FARLegend">100-150%</a>
+            <br/>
+            <div class="color-box" style="background-color: #eeba19;"></div>
+            <a style="padding-left: 2px; margin: 0px;" class="FARLegend">150-200%</a>
+            <div class="color-box" style="background-color: #ffda82;"></div>
+            <a style="padding-left: 2px; margin: 0px;" class="FARLegend">200% 이상</a>
+          </div>
+          <br/>
+        </td>
+      </tr>
+    </table>
+  </page>
+</body>
+
+</html>
